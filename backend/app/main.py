@@ -6,6 +6,7 @@ from .auth import fastapi_users, jwt_authentication
 from .database import engine, get_db
 from .models import Base, Customer
 from .schemas import CustomerCreate, Customer
+from .jwt_authentication import something
 from fastapi import HTTPException, status
 
 # Create tables

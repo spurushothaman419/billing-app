@@ -68,3 +68,18 @@ npm start
 
 Visit http://localhost:3000 to see the customer list page (initially empty).
 Use tools like Postman to create users and customers via API to test.
+
+How to run:
+Make sure all these files are in your /backend/app/ folder.
+
+Install dependencies (see your requirements.txt): pip install fastapi uvicorn fastapi-users[sqlalchemy] sqlalchemy pydantic passlib[bcrypt] email-validator
+Run the app: uvicorn app.main:app --reload
+Test endpoints: 
+
+POST /auth/register to create users
+
+POST /auth/jwt/login to get JWT token
+
+POST /customers/ with JWT auth to create customers
+
+GET /customers/ with JWT auth to list customers

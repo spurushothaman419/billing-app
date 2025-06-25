@@ -1,1 +1,6 @@
-# Python dependencies list
+fastapi
+uvicorn[standard]
+sqlalchemy
+pydantic
+passlib[bcrypt]
+email-validator

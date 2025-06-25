@@ -2,11 +2,11 @@ from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 
-from .auth import fastapi_users, jwt_authentication
-from .database import engine, get_db
-from .models import Base, Customer
-from .schemas import CustomerCreate, Customer
-from .jwt_authentication import something
+from app.auth import fastapi_users, jwt_authentication
+from app.database import engine, get_db
+from app.models import Base, Customer
+from app.schemas import CustomerCreate, Customer
+from app.jwt_authentication import something
 from fastapi import HTTPException, status
 
 # Create tables

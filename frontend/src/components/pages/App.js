@@ -1,7 +1,8 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
-import CustomerList from "./pages/CustomerList";
-import Login from "./pages/Login";
+
+import CustomerList from "./components/pages/CustomerList";
+import Login from "./components/pages/Login";
 import PrivateRoute from "./components/PrivateRoute";
 
 function App() {

@@ -5,7 +5,8 @@ const CustomerList = () => {
   const [customers, setCustomers] = useState([]);
 
   useEffect(() => {
-    api.get("/customers/")
+    api
+      .get("/customers/")
       .then((res) => setCustomers(res.data))
       .catch((err) => console.error(err));
   }, []);

@@ -1,2 +1,2 @@
 # billing-app
-# Project overview and setup instructions
+Project overview and setup instructions

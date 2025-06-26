@@ -2,7 +2,7 @@ from fastapi_users.authentication import AuthenticationBackend
 from fastapi_users.authentication.strategy.jwt import JWTStrategy
 from fastapi_users.authentication.transport.bearer import BearerTransport
 
-SECRET = "SECRET_KEY"  # 🔐 move to env in prod
+SECRET = "SUPERSECRET"  # 🔐 Use os.environ in production
 
 bearer_transport = BearerTransport(tokenUrl="auth/jwt/login")
 

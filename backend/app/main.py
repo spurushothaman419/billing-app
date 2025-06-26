@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
-
+from app.jwt_authentication import auth_backend
 from app.auth.jwt_authentication import jwt_auth_backend
 from app.auth.fastapi_users import fastapi_users
 from app.users import fastapi_users

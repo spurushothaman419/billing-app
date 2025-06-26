@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 from app.auth.jwt_authentication import jwt_auth_backend
 from app.auth.fastapi_users import fastapi_users
-from app.auth.users import fastapi_users
+from app.users import fastapi_users
 from app.database import engine, get_db
 from app.models import Base, Customer
 from app.schemas import CustomerCreate, Customer, UserCreate, UserRead

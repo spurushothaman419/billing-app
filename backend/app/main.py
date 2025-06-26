@@ -1,21 +1,23 @@
 # app/main.py
+
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.auth.fastapi_users import fastapi_users
-from app.auth.jwt_authentication import jwt_auth_backend
+import uuid
+import asyncio
 
+from app.auth import auth_backend
+from app.auth_users import fastapi_users
 from app.database import engine, Base, async_session_maker
 from app.models import Customer
 from app.schemas import CustomerCreate, Customer as CustomerOut
 
-# Create async DB tables
+# Async DB init
 async def init_db():
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 
-import asyncio
 asyncio.run(init_db())
 
 app = FastAPI(title="Embroidery Billing API")
@@ -28,9 +30,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Auth Routes
+# ✅ Auth routes
 app.include_router(
-    fastapi_users.get_auth_router(jwt_auth_backend),
+    fastapi_users.get_auth_router(auth_backend),
     prefix="/auth/jwt",
     tags=["auth"]
 )
@@ -45,7 +47,7 @@ app.include_router(
     tags=["users"]
 )
 
-# Customer Routes
+# ✅ Customer endpoints
 @app.post("/customers/", response_model=CustomerOut)
 async def create_customer(customer: CustomerCreate, session: AsyncSession = Depends(async_session_maker)):
     result = await session.execute(

@@ -1,8 +1,7 @@
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
-
-from app.auth import fastapi_users, jwt_authentication
+from auth import fastapi_users, jwt_authentication
 from app.database import engine, get_db
 from app.models import Base, Customer
 from app.schemas import CustomerCreate, Customer

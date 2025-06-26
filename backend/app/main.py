@@ -2,7 +2,9 @@ from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 
-from app.auth import fastapi_users, jwt_authentication
+from app.auth.jwt_authentication import jwt_auth_backend
+from app.auth.fastapi_users import fastapi_users
+from app.auth.users import fastapi_users
 from app.database import engine, get_db
 from app.models import Base, Customer
 from app.schemas import CustomerCreate, Customer, UserCreate, UserRead
@@ -22,10 +24,13 @@ app.add_middleware(
 )
 
 # Register authentication routes
+#app.include_router(
+   # fastapi_users.get_auth_router(jwt_authentication),
+   # prefix="/auth/jwt",
+    #tags=["auth"]
 app.include_router(
-    fastapi_users.get_auth_router(jwt_authentication),
-    prefix="/auth/jwt",
-    tags=["auth"]
+    fastapi_users.get_auth_router(jwt_auth_backend), prefix="/auth/jwt", tags=["auth"]
+)
 )
 app.include_router(
     fastapi_users.get_register_router(UserRead, UserCreate),

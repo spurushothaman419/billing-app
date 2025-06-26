@@ -1,20 +1,25 @@
+# app/main.py
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.auth.fastapi_users import fastapi_users  # ✅ Only import once
-from app.auth.jwt_authentication import jwt_auth_backend  # ✅ Correct name
+from app.auth.fastapi_users import fastapi_users
+from app.auth.jwt_authentication import jwt_auth_backend
 
-from app.database import engine, get_db
-from app.models import Base, Customer
-from app.schemas import CustomerCreate, Customer
+from app.database import engine, Base, async_session_maker
+from app.models import Customer
+from app.schemas import CustomerCreate, Customer as CustomerOut
 
-# Create DB tables
-Base.metadata.create_all(bind=engine)
+# Create async DB tables
+async def init_db():
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+
+import asyncio
+asyncio.run(init_db())
 
 app = FastAPI(title="Embroidery Billing API")
 
-# CORS configuration
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:3000"],
@@ -23,7 +28,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ✅ Auth routes (JWT login, register, user profile)
+# Auth Routes
 app.include_router(
     fastapi_users.get_auth_router(jwt_auth_backend),
     prefix="/auth/jwt",
@@ -40,25 +45,31 @@ app.include_router(
     tags=["users"]
 )
 
-# Customer CRUD endpoints
-@app.post("/customers/", response_model=Customer)
-def create_customer(customer: CustomerCreate, db: Session = Depends(get_db)):
-    existing_customer = db.query(Customer).filter(Customer.email == customer.email).first()
-    if existing_customer:
-        raise HTTPException(status_code=400, detail="Customer with this email already exists")
+# Customer Routes
+@app.post("/customers/", response_model=CustomerOut)
+async def create_customer(customer: CustomerCreate, session: AsyncSession = Depends(async_session_maker)):
+    result = await session.execute(
+        Customer.__table__.select().where(Customer.email == customer.email)
+    )
+    existing = result.fetchone()
+    if existing:
+        raise HTTPException(status_code=400, detail="Customer already exists")
+
     new_customer = Customer(
+        id=str(uuid.uuid4()),
         name=customer.name,
         email=customer.email,
         phone=customer.phone
     )
-    db.add(new_customer)
-    db.commit()
-    db.refresh(new_customer)
+    session.add(new_customer)
+    await session.commit()
+    await session.refresh(new_customer)
     return new_customer
 
-@app.get("/customers/", response_model=list[Customer])
-def list_customers(db: Session = Depends(get_db)):
-    return db.query(Customer).all()
+@app.get("/customers/", response_model=list[CustomerOut])
+async def list_customers(session: AsyncSession = Depends(async_session_maker)):
+    result = await session.execute(Customer.__table__.select())
+    return result.scalars().all()
 
 @app.get("/")
 def root():

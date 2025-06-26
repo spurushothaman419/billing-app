@@ -1,19 +1,18 @@
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
-from auth import fastapi_users, jwt_authentication
+
+from app.auth import fastapi_users, jwt_authentication
 from app.database import engine, get_db
 from app.models import Base, Customer
-from app.schemas import CustomerCreate, Customer
-from app.jwt_authentication import something
-from fastapi import HTTPException, status
+from app.schemas import CustomerCreate, Customer, UserCreate, UserRead
 
-# Create tables
+# Create all DB tables
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Embroidery Billing API")
 
-# CORS setup for frontend running on localhost:3000
+# CORS configuration for frontend (e.g. React at localhost:3000)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:3000"],
@@ -22,15 +21,19 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Include authentication routes
+# Register authentication routes
 app.include_router(
-    fastapi_users.get_auth_router(jwt_authentication), prefix="/auth/jwt", tags=["auth"]
+    fastapi_users.get_auth_router(jwt_authentication),
+    prefix="/auth/jwt",
+    tags=["auth"]
 )
 app.include_router(
-    fastapi_users.get_register_router(), prefix="/auth", tags=["auth"]
+    fastapi_users.get_register_router(UserRead, UserCreate),
+    prefix="/auth",
+    tags=["auth"]
 )
 
-# Customer CRUD endpoints
+# Customer CRUD APIs
 @app.post("/customers/", response_model=Customer)
 def create_customer(customer: CustomerCreate, db: Session = Depends(get_db)):
     existing_customer = db.query(Customer).filter(Customer.email == customer.email).first()

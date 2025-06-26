@@ -33,8 +33,8 @@ app.include_router(
 )
 )
 app.include_router(
-    fastapi_users.get_register_router(UserRead, UserCreate),
-    prefix="/auth",
+    fastapi_users.get_auth_router(auth_backend),
+    prefix="/auth/jwt",
     tags=["auth"]
 )
 
